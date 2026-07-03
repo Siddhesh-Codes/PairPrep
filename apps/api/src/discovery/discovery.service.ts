@@ -22,11 +22,17 @@ export class DiscoveryService {
     });
 
     const interestIds = myInterests.map((i) => i.interviewTypeId);
-    const slots = myAvailability.map((a) => `${a.day}:${a.slot}`);
 
     // If arrays are empty, provide a dummy element so ANY() matches nothing but runs successfully
     const sqlInterestIds = interestIds.length > 0 ? interestIds : ['00000000-0000-0000-0000-000000000000'];
-    const sqlSlots = slots.length > 0 ? slots : ['DUMMY_SLOT'];
+
+    const availabilityTuples = myAvailability.length > 0
+      ? myAvailability.map((a) => Prisma.sql`(${a.day}::"DayOfWeek", ${a.slot}::"TimeSlot")`)
+      : [];
+
+    const availabilityFilter = availabilityTuples.length > 0
+      ? Prisma.sql`(day, slot) IN (${Prisma.join(availabilityTuples)})`
+      : Prisma.sql`1=0`;
 
     const offset = (page - 1) * limit;
 
@@ -83,7 +89,7 @@ export class DiscoveryService {
         p.is_leetcode_public as "isLeetcodePublic",
         (
           (COALESCE(i_overlap.count, 0)::float / ${Math.max(interestIds.length, 1)}) * 0.6 +
-          (COALESCE(a_overlap.count, 0)::float / ${Math.max(slots.length, 1)}) * 0.4
+          (COALESCE(a_overlap.count, 0)::float / ${Math.max(myAvailability.length, 1)}) * 0.4
         ) as "relevanceScore"
       FROM profiles p
       JOIN users u ON u.id = p.user_id
@@ -96,7 +102,7 @@ export class DiscoveryService {
       LEFT JOIN (
         SELECT user_id, COUNT(*)::integer as count
         FROM user_availability
-        WHERE (day::text || ':' || slot::text) = ANY(${sqlSlots})
+        WHERE ${availabilityFilter}
         GROUP BY user_id
       ) a_overlap ON a_overlap.user_id = p.user_id
       ${whereClause}

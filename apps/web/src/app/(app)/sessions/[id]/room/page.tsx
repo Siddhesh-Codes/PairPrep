@@ -91,9 +91,7 @@ export default function MeetingRoomPage() {
               variant="outline"
               size="sm"
               onClick={() => {
-                if (confirm('Are you sure you want to leave the workspace?')) {
-                  router.push('/sessions');
-                }
+                router.push('/sessions');
               }}
             >
               Exit Room

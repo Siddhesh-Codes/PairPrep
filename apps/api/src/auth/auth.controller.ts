@@ -5,10 +5,15 @@ import * as jwt from 'jsonwebtoken';
 import { AuthService } from './auth.service';
 import { RegisterDto, LoginDto, ForgotPasswordDto, ResetPasswordDto } from './auth.dto';
 
+const isDeployed =
+  process.env.NODE_ENV === 'production' ||
+  process.env.RENDER === 'true' ||
+  (process.env.CORS_ORIGINS && process.env.CORS_ORIGINS.includes('https://'));
+
 const COOKIE_OPTIONS = {
   httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
-  sameSite: (process.env.NODE_ENV === 'production' ? 'none' : 'lax') as 'none' | 'lax',
+  secure: !!isDeployed,
+  sameSite: (isDeployed ? 'none' : 'lax') as 'none' | 'lax',
   path: '/',
 };
 

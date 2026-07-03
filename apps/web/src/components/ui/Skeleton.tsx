@@ -109,22 +109,26 @@ export function ErrorState({
 
 /* ─── Empty State ─── */
 
+import { AppIcon } from '../icons/AppIcon';
+
 interface EmptyStateProps {
-  icon?: string;
+  icon?: React.ReactNode;
   title: string;
   message?: string;
   children?: React.ReactNode;
 }
 
 export function EmptyState({
-  icon = '📭',
+  icon,
   title,
   message,
   children,
 }: EmptyStateProps) {
   return (
     <div className={styles.emptyState}>
-      <div className={styles.emptyIcon}>{icon}</div>
+      <div className={styles.emptyIcon}>
+        {icon || <AppIcon name="inbox" size={28} />}
+      </div>
       <h3 className={styles.emptyTitle}>{title}</h3>
       {message && <p className={styles.emptyMessage}>{message}</p>}
       {children}

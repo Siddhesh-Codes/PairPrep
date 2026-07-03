@@ -104,6 +104,7 @@ model Profile {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([profileComplete, experienceLevel])
   @@map("profiles")
 }
 
@@ -129,6 +130,7 @@ model UserInterviewInterest {
   interviewType InterviewType @relation(fields: [interviewTypeId], references: [id], onDelete: Cascade)
 
   @@unique([userId, interviewTypeId])
+  @@index([interviewTypeId])
   @@map("user_interview_interests")
 }
 
@@ -142,6 +144,7 @@ model UserAvailability {
 
   @@unique([userId, day, slot])
   @@index([userId])
+  @@index([day, slot])
   @@map("user_availability")
 }
 

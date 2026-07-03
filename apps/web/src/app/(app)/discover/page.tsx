@@ -316,7 +316,7 @@ export default function DiscoverPage() {
 
         {!isLoading && !isError && partners.length === 0 && (
           <EmptyState
-            icon="🔍"
+            icon={<AppIcon name="discover" size={28} />}
             title="No partners found"
             message="Partners only appear after they complete their full profile (bio, experience level, interview interests, and availability). Try removing some filters or check back later."
           />

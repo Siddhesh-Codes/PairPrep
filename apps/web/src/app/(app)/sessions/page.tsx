@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
+
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AppIcon } from '@/components/icons/AppIcon';
 import { AppShell } from '@/components/layout/AppShell';
@@ -164,12 +164,7 @@ export default function SessionsPage() {
                         <AppIcon name="clock" size={15} />
                         {session.durationMinutes} min
                       </span>
-                      {session.status === 'scheduled' && (
-                        <Link href={`/sessions/${session.id}/room`} className={styles.workspaceLink}>
-                          <AppIcon name="external" size={15} />
-                          Workspace Room
-                        </Link>
-                      )}
+
                       {session.meetingLink && (
                         <a href={session.meetingLink} target="_blank" rel="noopener noreferrer">
                           <AppIcon name="external" size={15} />
@@ -245,7 +240,7 @@ export default function SessionsPage() {
 
         {!isLoading && !isError && sessions.length === 0 && (
           <EmptyState
-            icon="📅"
+            icon={<AppIcon name="calendar" size={28} />}
             title="No sessions found"
             message={
               filter === 'all'

@@ -368,7 +368,7 @@ export default function MatchesPage() {
 
         {!loading && !isError && (!requests || requests.length === 0) && (
           <EmptyState
-            icon={tab === 'incoming' ? '📥' : '📤'}
+            icon={<AppIcon name={tab === 'incoming' ? 'inbox' : 'external'} size={28} />}
             title={`No ${tab} requests`}
             message={
               tab === 'incoming'

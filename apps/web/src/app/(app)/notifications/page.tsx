@@ -119,7 +119,7 @@ export default function NotificationsPage() {
 
         {!isLoading && !isError && notifications.length === 0 && (
           <EmptyState
-            icon="🔔"
+            icon={<AppIcon name="bell" size={28} />}
             title="All caught up"
             message="No notifications to show."
           />
