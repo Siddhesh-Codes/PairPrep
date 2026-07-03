@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { api, ApiError } from '@/lib/api';
 import { AppIcon } from '@/components/icons/AppIcon';
@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/Button';
 import { Textarea } from '@/components/ui/Input';
 import { AppShell } from '@/components/layout/AppShell';
 import { useToast } from '@/components/ui/Toast';
+import { useAuthStore } from '@/lib/auth-store';
 import styles from './feedback.module.css';
 
 function StarRating({ label, value, onChange }: { label: string; value: number; onChange: (v: number) => void }) {
@@ -35,6 +36,7 @@ export default function FeedbackPage() {
   const params = useParams();
   const router = useRouter();
   const sessionId = params.id as string;
+  const user = useAuthStore((state) => state.user);
 
   const [overall, setOverall] = useState(0);
   const [technicalDepth, setTechnicalDepth] = useState(0);
@@ -46,6 +48,19 @@ export default function FeedbackPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [checking, setChecking] = useState(true);
+
+  useEffect(() => {
+    if (!sessionId || !user?.id) { setChecking(false); return; }
+    api.get<{ reviewerId: string }[]>(`/api/v1/sessions/${sessionId}/feedback`)
+      .then((feedbackList) => {
+        if (feedbackList.some((f) => f.reviewerId === user.id)) {
+          setSubmitted(true);
+        }
+      })
+      .catch(() => {})
+      .finally(() => setChecking(false));
+  }, [sessionId, user?.id]);
 
   const canSubmit = overall > 0 && strengths.length >= 5 && improvements.length >= 5 && wouldPracticeAgain;
 

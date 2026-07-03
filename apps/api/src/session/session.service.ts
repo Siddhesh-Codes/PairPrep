@@ -53,12 +53,12 @@ export class SessionService {
 
     const sessions = await this.prisma.session.findMany({
       where,
-      include: { scheduler: true, partner: true, interviewType: true },
+      include: { scheduler: true, partner: true, interviewType: true, feedback: { select: { reviewerId: true } } },
       orderBy: { scheduledAt: 'desc' },
     });
 
     return {
-      content: sessions.map(this.formatSession),
+      content: sessions.map((s) => this.formatSession(s, userId)),
       totalElements: sessions.length,
     };
   }
@@ -133,8 +133,8 @@ export class SessionService {
     return this.formatSession(updated);
   }
 
-  private formatSession(s: any) {
-    return {
+  private formatSession(s: any, currentUserId?: string) {
+    const formatted: any = {
       id: s.id,
       schedulerId: s.schedulerId,
       schedulerDisplayName: s.scheduler?.displayName,
@@ -150,5 +150,11 @@ export class SessionService {
       notes: s.notes,
       createdAt: s.createdAt,
     };
+    if (s.feedback && currentUserId) {
+      formatted.myFeedbackSubmitted = s.feedback.some(
+        (f: any) => f.reviewerId === currentUserId,
+      );
+    }
+    return formatted;
   }
 }

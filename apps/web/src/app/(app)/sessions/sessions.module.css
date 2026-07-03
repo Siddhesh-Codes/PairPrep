@@ -293,3 +293,14 @@
 .paginationInfo {
   font-weight: var(--weight-medium);
 }
+
+.feedbackDone {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+  color: var(--success);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}

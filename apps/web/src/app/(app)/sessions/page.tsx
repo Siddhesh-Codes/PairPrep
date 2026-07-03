@@ -24,6 +24,7 @@ interface SessionItem {
   durationMinutes: string;
   meetingLink: string;
   notes: string | null;
+  myFeedbackSubmitted?: boolean;
 }
 
 interface PagedResponse {
@@ -184,15 +185,21 @@ export default function SessionsPage() {
                     )}
                     {session.status === 'completed' && (
                       <div className={styles.sessionActions}>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => {
-                            window.location.href = `/sessions/${session.id}/feedback`;
-                          }}
-                        >
-                          Leave Feedback
-                        </Button>
+                        {session.myFeedbackSubmitted ? (
+                          <span className={styles.feedbackDone}>
+                            <AppIcon name="check" size={15} /> Feedback Submitted
+                          </span>
+                        ) : (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              window.location.href = `/sessions/${session.id}/feedback`;
+                            }}
+                          >
+                            Leave Feedback
+                          </Button>
+                        )}
                       </div>
                     )}
                   </div>
