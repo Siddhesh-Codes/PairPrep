@@ -55,12 +55,12 @@ export default function FeedbackPage() {
     try {
       await api.post(`/api/v1/sessions/${sessionId}/feedback`, {
         overallRating: overall,
-        technicalDepthRating: technicalDepth || undefined,
-        communicationRating: communication || undefined,
-        problemSolvingRating: problemSolving || undefined,
+        technicalScore: technicalDepth || 1,
+        communicationScore: communication || 1,
+        problemSolvingScore: problemSolving || 1,
         strengths,
         improvements,
-        wouldPracticeAgain,
+        notes: wouldPracticeAgain ? `Would practice again: ${wouldPracticeAgain}` : '',
       });
       toast.success('Feedback Submitted', 'Thank you for helping your partner improve!');
       setSubmitted(true);
