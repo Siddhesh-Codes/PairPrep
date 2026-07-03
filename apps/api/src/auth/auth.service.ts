@@ -26,7 +26,7 @@ export class AuthService {
       throw new ConflictException('Email already registered');
     }
 
-    const passwordHash = await bcrypt.hash(dto.password, 12);
+    const passwordHash = await bcrypt.hash(dto.password, 10);
 
     const user = await this.prisma.user.create({
       data: {
@@ -212,7 +212,7 @@ export class AuthService {
     }
 
     // 3. Hash new password and update user
-    const passwordHash = await bcrypt.hash(dto.newPassword, 12);
+    const passwordHash = await bcrypt.hash(dto.newPassword, 10);
     await this.prisma.user.update({
       where: { id: user.id },
       data: { passwordHash },

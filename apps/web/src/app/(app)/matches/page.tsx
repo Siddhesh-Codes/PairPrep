@@ -20,12 +20,20 @@ interface MatchRequest {
   requesterLinkedin?: string | null;
   requesterGithub?: string | null;
   requesterLeetcode?: string | null;
+  requesterBio?: string | null;
+  requesterExperienceLevel?: string | null;
+  requesterAvgRating?: number | null;
+  requesterSessionsCompleted?: number | null;
   recipientId: string;
   recipientDisplayName: string;
   recipientAvatarUrl?: string | null;
   recipientLinkedin?: string | null;
   recipientGithub?: string | null;
   recipientLeetcode?: string | null;
+  recipientBio?: string | null;
+  recipientExperienceLevel?: string | null;
+  recipientAvgRating?: number | null;
+  recipientSessionsCompleted?: number | null;
   interviewTypeId: string;
   interviewTypeName: string;
   status: string;
@@ -44,6 +52,7 @@ export default function MatchesPage() {
   const [page, setPage] = useState(1);
   const limit = 5;
   const queryClient = useQueryClient();
+  const [previewingProfile, setPreviewingProfile] = useState<MatchRequest | null>(null);
 
   const handleTabChange = (newTab: 'incoming' | 'outgoing') => {
     setTab(newTab);
@@ -234,7 +243,12 @@ export default function MatchesPage() {
                   </div>
                   <div className={styles.requestBody}>
                     <div className={styles.requestNameRow}>
-                      <div className={styles.requestName}>
+                      <div
+                        className={styles.requestName}
+                        style={{ cursor: 'pointer' }}
+                        onClick={() => setPreviewingProfile(req)}
+                        title="Click to view candidate profile"
+                      >
                         {tab === 'incoming' ? req.requesterDisplayName : req.recipientDisplayName}
                       </div>
                       <div className={styles.partnerSocials}>
@@ -268,6 +282,13 @@ export default function MatchesPage() {
                   <div className={styles.requestActions}>
                     {tab === 'incoming' ? (
                       <>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => setPreviewingProfile(req)}
+                        >
+                          View Profile
+                        </Button>
                         <Button
                           size="sm"
                           onClick={() => acceptMutation.mutate(req.id)}
@@ -441,6 +462,169 @@ export default function MatchesPage() {
                   </Button>
                 </div>
               </form>
+            </div>
+          </div>
+        )}
+
+        {/* Profile Preview Modal */}
+        {previewingProfile && (
+          <div className={styles.modalOverlay} onClick={() => setPreviewingProfile(null)}>
+            <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+              <div className={styles.modalHeader}>
+                <h3 className={styles.modalTitle}>Candidate Profile Preview</h3>
+                <button
+                  type="button"
+                  className={styles.modalCloseBtn}
+                  onClick={() => setPreviewingProfile(null)}
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              <div className={styles.profileModalBody}>
+                <div className={styles.profileHeaderRow}>
+                  <div className={styles.profileAvatarBig}>
+                    {getAvatarUrl(
+                      tab === 'incoming'
+                        ? previewingProfile.requesterAvatarUrl
+                        : previewingProfile.recipientAvatarUrl
+                    ) ? (
+                      <img
+                        src={getAvatarUrl(
+                          tab === 'incoming'
+                            ? previewingProfile.requesterAvatarUrl
+                            : previewingProfile.recipientAvatarUrl
+                        ) || ''}
+                        alt="Avatar"
+                        className={styles.avatarImage}
+                      />
+                    ) : (
+                      getInitials(
+                        tab === 'incoming'
+                          ? previewingProfile.requesterDisplayName
+                          : previewingProfile.recipientDisplayName
+                      )
+                    )}
+                  </div>
+                  <div>
+                    <h4 className={styles.profileNameText}>
+                      {tab === 'incoming'
+                        ? previewingProfile.requesterDisplayName
+                        : previewingProfile.recipientDisplayName}
+                    </h4>
+                    <span className={styles.experienceBadge}>
+                      {((tab === 'incoming'
+                        ? previewingProfile.requesterExperienceLevel
+                        : previewingProfile.recipientExperienceLevel) || 'Not set').toUpperCase()}
+                    </span>
+                  </div>
+                </div>
+
+                <div className={styles.profileStatsRow}>
+                  <div className={styles.statBox}>
+                    <span className={styles.statLabel}>Avg Rating</span>
+                    <span className={styles.statValue}>
+                      {(tab === 'incoming'
+                        ? previewingProfile.requesterAvgRating
+                        : previewingProfile.recipientAvgRating)
+                        ? `${(tab === 'incoming'
+                            ? previewingProfile.requesterAvgRating
+                            : previewingProfile.recipientAvgRating)?.toFixed(1)} ★`
+                        : 'N/A'}
+                    </span>
+                  </div>
+                  <div className={styles.statBox}>
+                    <span className={styles.statLabel}>Sessions Completed</span>
+                    <span className={styles.statValue}>
+                      {tab === 'incoming'
+                        ? previewingProfile.requesterSessionsCompleted
+                        : previewingProfile.recipientSessionsCompleted}
+                    </span>
+                  </div>
+                </div>
+
+                <div className={styles.profileBioSection}>
+                  <h5 className={styles.sectionLabel}>Biography</h5>
+                  <p className={styles.bioText}>
+                    {(tab === 'incoming'
+                      ? previewingProfile.requesterBio
+                      : previewingProfile.recipientBio) || 'No biography provided.'}
+                  </p>
+                </div>
+
+                <div className={styles.profileSocialSection}>
+                  <h5 className={styles.sectionLabel}>Professional Links</h5>
+                  <div className={styles.socialIconsRow}>
+                    {(tab === 'incoming' ? previewingProfile.requesterLinkedin : previewingProfile.recipientLinkedin) ? (
+                      <a
+                        href={(tab === 'incoming' ? previewingProfile.requesterLinkedin : previewingProfile.recipientLinkedin) || '#'}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={styles.socialLinkIcon}
+                      >
+                        <Linkedin size={18} /> LinkedIn
+                      </a>
+                    ) : null}
+                    {(tab === 'incoming' ? previewingProfile.requesterGithub : previewingProfile.recipientGithub) ? (
+                      <a
+                        href={(tab === 'incoming' ? previewingProfile.requesterGithub : previewingProfile.recipientGithub) || '#'}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={styles.socialLinkIcon}
+                      >
+                        <Github size={18} /> GitHub
+                      </a>
+                    ) : null}
+                    {(tab === 'incoming' ? previewingProfile.requesterLeetcode : previewingProfile.recipientLeetcode) ? (
+                      <a
+                        href={(tab === 'incoming' ? previewingProfile.requesterLeetcode : previewingProfile.recipientLeetcode) || '#'}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={styles.socialLinkIcon}
+                      >
+                        <Code size={18} /> LeetCode
+                      </a>
+                    ) : null}
+                    {!(tab === 'incoming'
+                      ? previewingProfile.requesterLinkedin || previewingProfile.requesterGithub || previewingProfile.requesterLeetcode
+                      : previewingProfile.recipientLinkedin || previewingProfile.recipientGithub || previewingProfile.recipientLeetcode
+                    ) && <span className={styles.noLinksText}>No public links provided.</span>}
+                  </div>
+                </div>
+
+                {previewingProfile.message && (
+                  <div className={styles.profileBioSection}>
+                    <h5 className={styles.sectionLabel}>Match Request Message</h5>
+                    <div className={styles.requestMessageContent}>
+                      &ldquo;{previewingProfile.message}&rdquo;
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {previewingProfile.status === 'pending' && tab === 'incoming' && (
+                <div className={styles.modalActions}>
+                  <Button
+                    onClick={() => {
+                      acceptMutation.mutate(previewingProfile.id);
+                      setPreviewingProfile(null);
+                    }}
+                    loading={acceptMutation.isPending}
+                  >
+                    Accept Match
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    onClick={() => {
+                      declineMutation.mutate(previewingProfile.id);
+                      setPreviewingProfile(null);
+                    }}
+                    loading={declineMutation.isPending}
+                  >
+                    Decline
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
         )}

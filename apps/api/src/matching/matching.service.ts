@@ -33,6 +33,35 @@ export class MatchingService {
       throw new ConflictException('Pending request already exists');
     }
 
+    // Quality Matching Guardrail: Check experience level tiers
+    const requesterProfile = await this.prisma.profile.findUnique({
+      where: { userId: requesterId },
+    });
+    const recipientProfile = await this.prisma.profile.findUnique({
+      where: { userId: dto.recipientId },
+    });
+
+    if (!requesterProfile || !recipientProfile) {
+      throw new BadRequestException('Both candidates must have profiles to match.');
+    }
+
+    const expTiers: Record<string, number> = {
+      junior: 1,
+      mid: 2,
+      senior: 3,
+    };
+
+    const requesterTier = requesterProfile.experienceLevel ? expTiers[requesterProfile.experienceLevel] : null;
+    const recipientTier = recipientProfile.experienceLevel ? expTiers[recipientProfile.experienceLevel] : null;
+
+    if (requesterTier && recipientTier) {
+      if (Math.abs(requesterTier - recipientTier) > 1) {
+        throw new BadRequestException(
+          'You can only match with candidates within one experience level of yourself (e.g. Junior can match with Mid, but not Senior).'
+        );
+      }
+    }
+
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 7);
 
@@ -185,6 +214,10 @@ export class MatchingService {
       requesterLinkedin: r.requester?.profile?.isLinkedinPublic ? r.requester?.profile?.linkedin : null,
       requesterGithub: r.requester?.profile?.isGithubPublic ? r.requester?.profile?.github : null,
       requesterLeetcode: r.requester?.profile?.isLeetcodePublic ? r.requester?.profile?.leetcode : null,
+      requesterBio: r.requester?.profile?.bio || '',
+      requesterExperienceLevel: r.requester?.profile?.experienceLevel || null,
+      requesterAvgRating: r.requester?.profile?.avgRating || null,
+      requesterSessionsCompleted: r.requester?.profile?.sessionsCompleted || 0,
       
       recipientId: r.recipientId,
       recipientDisplayName: r.recipient?.displayName,
@@ -192,6 +225,10 @@ export class MatchingService {
       recipientLinkedin: r.recipient?.profile?.isLinkedinPublic ? r.recipient?.profile?.linkedin : null,
       recipientGithub: r.recipient?.profile?.isGithubPublic ? r.recipient?.profile?.github : null,
       recipientLeetcode: r.recipient?.profile?.isLeetcodePublic ? r.recipient?.profile?.leetcode : null,
+      recipientBio: r.recipient?.profile?.bio || '',
+      recipientExperienceLevel: r.recipient?.profile?.experienceLevel || null,
+      recipientAvgRating: r.recipient?.profile?.avgRating || null,
+      recipientSessionsCompleted: r.recipient?.profile?.sessionsCompleted || 0,
       
       interviewTypeId: r.interviewTypeId,
       interviewTypeName: r.interviewType?.name,
