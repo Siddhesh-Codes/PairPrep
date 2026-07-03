@@ -36,7 +36,6 @@ const ENV_RULES: EnvRule[] = [
   {
     key: 'FRONTEND_URL',
     required: false,
-    prodOnly: true,
     validator: (v) =>
       v.startsWith('http://') || v.startsWith('https://')
         ? null
