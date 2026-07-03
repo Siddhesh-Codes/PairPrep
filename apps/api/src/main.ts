@@ -25,12 +25,12 @@ async function bootstrap() {
     'http://localhost:3000'
   )
     .split(',')
-    .map((o) => o.trim().replace(/\/$/, ''));
+    .map((o) => o.trim().replace(/^['"]|['"]$/g, '').replace(/\/$/, ''));
 
   app.enableCors({
     origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
       // Allow requests with no origin (server-to-server, curl, etc.)
-      const cleanedOrigin = origin ? origin.trim().replace(/\/$/, '') : '';
+      const cleanedOrigin = origin ? origin.trim().replace(/^['"]|['"]$/g, '').replace(/\/$/, '') : '';
       if (!origin || allowedOrigins.includes(cleanedOrigin)) {
         callback(null, true);
       } else {
@@ -54,8 +54,12 @@ async function bootstrap() {
 
   const port = process.env.PORT || 8080;
   await app.listen(port);
-  new Logger('Bootstrap').log(
+  const logger = new Logger('Bootstrap');
+  logger.log(
     `PairPrep API running on :${port} [${process.env.NODE_ENV || 'development'}]`,
+  );
+  logger.log(
+    `Allowed CORS origins: ${JSON.stringify(allowedOrigins)}`,
   );
 }
 bootstrap();
