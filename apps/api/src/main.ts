@@ -25,12 +25,13 @@ async function bootstrap() {
     'http://localhost:3000'
   )
     .split(',')
-    .map((o) => o.trim());
+    .map((o) => o.trim().replace(/\/$/, ''));
 
   app.enableCors({
     origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
       // Allow requests with no origin (server-to-server, curl, etc.)
-      if (!origin || allowedOrigins.includes(origin)) {
+      const cleanedOrigin = origin ? origin.trim().replace(/\/$/, '') : '';
+      if (!origin || allowedOrigins.includes(cleanedOrigin)) {
         callback(null, true);
       } else {
         callback(new Error(`Origin ${origin} not allowed by CORS`));
