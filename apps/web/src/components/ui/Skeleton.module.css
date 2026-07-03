@@ -1,0 +1,140 @@
+/* ─── Skeleton Pulse Animation ─── */
+@keyframes skeleton-pulse {
+  0% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 0.3;
+  }
+  100% {
+    opacity: 0.6;
+  }
+}
+
+.skeleton {
+  background: var(--border-subtle);
+  border-radius: var(--radius-md);
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+  border: 2px solid var(--border-default);
+}
+
+/* ─── Preset Sizes ─── */
+.skeleton--text {
+  height: 1em;
+  width: 100%;
+}
+
+.skeleton--title {
+  height: 1.5em;
+  width: 60%;
+}
+
+.skeleton--avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+}
+
+.skeleton--button {
+  height: 40px;
+  width: 120px;
+}
+
+.skeleton--card {
+  height: 160px;
+  width: 100%;
+}
+
+.skeleton--statCard {
+  height: 96px;
+  width: 100%;
+}
+
+/* ─── Composed Skeleton Layouts ─── */
+.skeletonRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.skeletonStack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  flex: 1;
+}
+
+.skeletonGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--space-2);
+}
+
+/* ─── Error State ─── */
+.errorState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-6) var(--space-4);
+  text-align: center;
+}
+
+.errorIcon {
+  font-size: var(--text-4xl);
+  color: var(--danger);
+  margin-bottom: var(--space-1);
+}
+
+.errorTitle {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-bold);
+  color: var(--text-primary);
+}
+
+.errorMessage {
+  font-size: var(--text-sm);
+  color: var(--text-tertiary);
+  max-width: 360px;
+  line-height: var(--leading-relaxed);
+}
+
+.errorActions {
+  display: flex;
+  gap: var(--space-1-5);
+  margin-top: var(--space-1);
+}
+
+/* ─── Empty State ─── */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-6) var(--space-4);
+  text-align: center;
+}
+
+.emptyIcon {
+  font-size: var(--text-4xl);
+  color: var(--text-tertiary);
+  margin-bottom: var(--space-1);
+}
+
+.emptyTitle {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-bold);
+  color: var(--text-primary);
+}
+
+.emptyMessage {
+  font-size: var(--text-sm);
+  color: var(--text-tertiary);
+  max-width: 360px;
+  line-height: var(--leading-relaxed);
+}

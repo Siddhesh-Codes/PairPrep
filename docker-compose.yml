@@ -1,0 +1,53 @@
+# PairPrep — Local Development Docker Compose
+# Usage: docker compose up -d
+# This spins up PostgreSQL + API + Web for a fully local environment.
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: pairprep
+      POSTGRES_USER: pairprep
+      POSTGRES_PASSWORD: pairprep_dev_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pairprep"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+      DATABASE_URL: postgresql://pairprep:pairprep_dev_password@postgres:5432/pairprep
+      JWT_SECRET: local-dev-secret-that-is-at-least-32-characters-long
+      PORT: 8080
+      NODE_ENV: development
+      FRONTEND_URL: http://localhost:3000
+
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8080
+
+volumes:
+  pgdata:

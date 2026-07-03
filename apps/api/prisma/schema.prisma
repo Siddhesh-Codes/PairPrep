@@ -1,0 +1,244 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ───────────────────────────────────────────────────────────
+
+enum ExperienceLevel {
+  junior
+  mid
+  senior
+}
+
+enum DayOfWeek {
+  monday
+  tuesday
+  wednesday
+  thursday
+  friday
+  saturday
+  sunday
+}
+
+enum TimeSlot {
+  morning
+  afternoon
+  evening
+}
+
+enum MatchRequestStatus {
+  pending
+  accepted
+  declined
+  expired
+  cancelled
+}
+
+enum SessionStatus {
+  scheduled
+  completed
+  cancelled
+  no_show
+}
+
+enum NotificationType {
+  match_requested
+  match_accepted
+  match_declined
+  session_scheduled
+  session_completed
+  session_cancelled
+  feedback_received
+  system
+}
+
+// ─── Models ──────────────────────────────────────────────────────────
+
+model User {
+  id           String   @id @default(uuid()) @db.Uuid
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  displayName  String   @map("display_name")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  profile            Profile?
+  refreshTokens      RefreshToken[]
+  sentRequests       MatchRequest[]  @relation("RequesterRelation")
+  receivedRequests   MatchRequest[]  @relation("RecipientRelation")
+  scheduledSessions  Session[]       @relation("SchedulerRelation")
+  partnerSessions    Session[]       @relation("PartnerRelation")
+  givenFeedback      Feedback[]      @relation("ReviewerRelation")
+  receivedFeedback   Feedback[]      @relation("RevieweeRelation")
+  notifications      Notification[]
+  interests          UserInterviewInterest[]
+  availability       UserAvailability[]
+
+  @@map("users")
+}
+
+model Profile {
+  id                String          @id @default(uuid()) @db.Uuid
+  userId            String          @unique @map("user_id") @db.Uuid
+  bio               String          @default("")
+  experienceLevel   ExperienceLevel? @map("experience_level")
+  avatarUrl         String?         @map("avatar_url")
+  timezone          String          @default("UTC")
+  profileComplete   Boolean         @default(false) @map("profile_complete")
+  sessionsCompleted Int             @default(0) @map("sessions_completed")
+  avgRating         Float?          @map("avg_rating")
+  ratingCount       Int             @default(0) @map("rating_count")
+  linkedin          String?
+  github            String?
+  leetcode          String?
+  isLinkedinPublic  Boolean         @default(true) @map("is_linkedin_public")
+  isGithubPublic    Boolean         @default(true) @map("is_github_public")
+  isLeetcodePublic  Boolean         @default(true) @map("is_leetcode_public")
+  createdAt         DateTime        @default(now()) @map("created_at")
+  updatedAt         DateTime        @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("profiles")
+}
+
+model InterviewType {
+  id       String @id @default(uuid()) @db.Uuid
+  name     String
+  slug     String @unique
+  iconName String @default("coding") @map("icon_name")
+
+  interests     UserInterviewInterest[]
+  matchRequests MatchRequest[]
+  sessions      Session[]
+
+  @@map("interview_types")
+}
+
+model UserInterviewInterest {
+  id              String @id @default(uuid()) @db.Uuid
+  userId          String @map("user_id") @db.Uuid
+  interviewTypeId String @map("interview_type_id") @db.Uuid
+
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  interviewType InterviewType @relation(fields: [interviewTypeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, interviewTypeId])
+  @@map("user_interview_interests")
+}
+
+model UserAvailability {
+  id     String    @id @default(uuid()) @db.Uuid
+  userId String    @map("user_id") @db.Uuid
+  day    DayOfWeek
+  slot   TimeSlot
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, day, slot])
+  @@index([userId])
+  @@map("user_availability")
+}
+
+model MatchRequest {
+  id              String             @id @default(uuid()) @db.Uuid
+  requesterId     String             @map("requester_id") @db.Uuid
+  recipientId     String             @map("recipient_id") @db.Uuid
+  interviewTypeId String             @map("interview_type_id") @db.Uuid
+  status          MatchRequestStatus @default(pending)
+  message         String?
+  expiresAt       DateTime           @map("expires_at")
+  createdAt       DateTime           @default(now()) @map("created_at")
+  updatedAt       DateTime           @updatedAt @map("updated_at")
+
+  requester     User          @relation("RequesterRelation", fields: [requesterId], references: [id], onDelete: Cascade)
+  recipient     User          @relation("RecipientRelation", fields: [recipientId], references: [id], onDelete: Cascade)
+  interviewType InterviewType @relation(fields: [interviewTypeId], references: [id])
+  sessions      Session[]
+
+  @@index([recipientId, status])
+  @@index([requesterId, status])
+  @@map("match_requests")
+}
+
+model Session {
+  id              String        @id @default(uuid()) @db.Uuid
+  schedulerId     String        @map("scheduler_id") @db.Uuid
+  partnerId       String        @map("partner_id") @db.Uuid
+  interviewTypeId String        @map("interview_type_id") @db.Uuid
+  matchRequestId  String?       @map("match_request_id") @db.Uuid
+  status          SessionStatus @default(scheduled)
+  scheduledAt     DateTime      @map("scheduled_at")
+  durationMinutes Int           @default(60) @map("duration_minutes")
+  meetingLink     String        @default("") @map("meeting_link")
+  notes           String?
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+
+  scheduler     User          @relation("SchedulerRelation", fields: [schedulerId], references: [id], onDelete: Cascade)
+  partner       User          @relation("PartnerRelation", fields: [partnerId], references: [id], onDelete: Cascade)
+  interviewType InterviewType @relation(fields: [interviewTypeId], references: [id])
+  matchRequest  MatchRequest? @relation(fields: [matchRequestId], references: [id])
+  feedback      Feedback[]
+
+  @@index([schedulerId, status])
+  @@index([partnerId, status])
+  @@map("sessions")
+}
+
+model Feedback {
+  id                 String   @id @default(uuid()) @db.Uuid
+  sessionId          String   @map("session_id") @db.Uuid
+  reviewerId         String   @map("reviewer_id") @db.Uuid
+  revieweeId         String   @map("reviewee_id") @db.Uuid
+  technicalScore     Int      @map("technical_score")
+  communicationScore Int      @map("communication_score")
+  problemSolvingScore Int     @map("problem_solving_score")
+  overallRating      Int      @map("overall_rating")
+  strengths          String   @default("")
+  improvements       String   @default("")
+  notes              String   @default("")
+  createdAt          DateTime @default(now()) @map("created_at")
+
+  session  Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  reviewer User    @relation("ReviewerRelation", fields: [reviewerId], references: [id], onDelete: Cascade)
+  reviewee User    @relation("RevieweeRelation", fields: [revieweeId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionId, reviewerId])
+  @@map("feedback")
+}
+
+model Notification {
+  id            String           @id @default(uuid()) @db.Uuid
+  userId        String           @map("user_id") @db.Uuid
+  type          NotificationType
+  title         String
+  body          String
+  referenceId   String?          @map("reference_id")
+  referenceType String?          @map("reference_type")
+  read          Boolean          @default(false)
+  createdAt     DateTime         @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, read])
+  @@map("notifications")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  tokenHash String   @map("token_hash")
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("refresh_tokens")
+}

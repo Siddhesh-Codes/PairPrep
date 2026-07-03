@@ -1,0 +1,19 @@
+# Core maintainers
+* @pairprep/core
+
+# Backend
+apps/api/ @pairprep/backend
+
+# Frontend
+apps/web/ @pairprep/frontend
+
+# Infrastructure
+infra/ @pairprep/devops
+.github/ @pairprep/devops
+
+# Documentation
+docs/ @pairprep/core
+
+# Security-sensitive files
+SECURITY.md @pairprep/core
+apps/api/src/main/java/com/pairprep/api/common/security/ @pairprep/core

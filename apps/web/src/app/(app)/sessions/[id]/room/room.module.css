@@ -1,0 +1,112 @@
+.roomContainer {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - var(--header-height) - 40px);
+  gap: var(--space-2);
+}
+
+.roomHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-1-5) var(--space-2);
+  background: var(--bg-card);
+  border: 2px solid var(--border-default);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.roomTitle {
+  font-family: var(--font-display);
+  font-size: var(--text-base);
+  font-weight: var(--weight-bold);
+}
+
+.roomActions {
+  display: flex;
+  gap: var(--space-1-5);
+}
+
+.workspace {
+  display: flex;
+  flex: 1;
+  gap: var(--space-2);
+  min-height: 0; /* Important for flex child scroll */
+}
+
+.videoPane {
+  flex: 3;
+  border: 2px solid var(--border-default);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  background: #1e1e1e; /* dark bg for video */
+  overflow: hidden;
+  position: relative;
+}
+
+.videoIframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.editorPane {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  border: 2px solid var(--border-default);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  background: var(--bg-card);
+  overflow: hidden;
+}
+
+.editorHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-1) var(--space-1-5);
+  border-bottom: 2px solid var(--border-default);
+  background: var(--bg-secondary);
+}
+
+.editorTitle {
+  font-weight: var(--weight-bold);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.editorArea {
+  flex: 1;
+  padding: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
+  color: var(--text-primary);
+  background: var(--bg-primary);
+  resize: none;
+  border: none;
+  outline: none;
+}
+
+@media (max-width: 992px) {
+  .workspace {
+    flex-direction: column;
+  }
+  
+  .roomContainer {
+    height: auto;
+    min-height: calc(100vh - var(--header-height) - 40px);
+  }
+
+  .videoPane {
+    min-height: 350px;
+    flex: none;
+  }
+
+  .editorPane {
+    min-height: 300px;
+    flex: none;
+  }
+}

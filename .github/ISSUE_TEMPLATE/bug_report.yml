@@ -1,0 +1,48 @@
+name: "🐛 Bug Report"
+description: Report a bug or unexpected behavior
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug. Please fill out the sections below.
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear description of what the bug is.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: Step-by-step instructions to reproduce the issue.
+      placeholder: |
+        1. Go to '...'
+        2. Click on '...'
+        3. See error
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What you expected to happen.
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      description: What actually happened.
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Environment
+      description: Browser, OS, screen size, etc.
+      placeholder: "Chrome 125, Windows 11, 1920x1080"
+    validations:
+      required: false

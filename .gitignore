@@ -1,0 +1,47 @@
+# === Java / Maven ===
+apps/api/target/
+*.class
+*.jar
+*.war
+*.ear
+*.log
+hs_err_pid*
+
+# === Node / Next.js ===
+apps/web/node_modules/
+apps/web/.next/
+apps/web/out/
+apps/web/.env.local
+apps/web/.env*.local
+
+# === IDE ===
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+*~
+
+# === OS ===
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# === Environment ===
+.env
+.env.local
+.env.*.local
+*.env
+
+# === Build ===
+dist/
+build/
+*.tgz
+node_modules
+
+# === Tooling / Cache ===
+.codex/
+.kombai/
+.turbo/
+.agents/
+*.tsbuildinfo

@@ -1,0 +1,21 @@
+{
+  "name": "pairprep",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "test": "turbo test",
+    "format": "prettier --write \"**/*.{ts,tsx,js,json,md,css}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,json,md,css}\""
+  },
+  "devDependencies": {
+    "prettier": "^3.3.0",
+    "turbo": "^2.5.0"
+  },
+  "packageManager": "npm@10.8.0"
+}
